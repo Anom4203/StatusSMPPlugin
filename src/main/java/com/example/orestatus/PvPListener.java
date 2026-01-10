@@ -2,6 +2,7 @@ package com.example.orestatus;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
@@ -112,7 +113,7 @@ public class PvPListener implements Listener {
             
         } 
         if (killer.getWorld().getGameRuleValue(org.bukkit.GameRule.SHOW_DEATH_MESSAGES)) {
-        plugin.getServer().broadcastMessage(Component.text("Please use '/gamerule showDeathMessages false' to enable custom death messages", NamedTextColor.YELLOW));
+        Bukkit.broadcast(Component.text("Please use '/gamerule showDeathMessages false' to enable custom death messages", NamedTextColor.YELLOW));
         }
     }
 
@@ -126,10 +127,10 @@ public class PvPListener implements Listener {
         // Send default death message for non PvP deaths if death messages are disabled
         if (!victim.getWorld().getGameRuleValue(org.bukkit.GameRule.SHOW_DEATH_MESSAGES)) {
             String victimName = victim.getName();
-            plugin.getServer().broadcastMessage(Component.text(victimName + " has a skill issue!", NamedTextColor.LIGHT_PURPLE));
+            Bukkit.broadcast(Component.text(victimName + " has a skill issue!", NamedTextColor.LIGHT_PURPLE));
         }
         if (victim.getWorld().getGameRuleValue(org.bukkit.GameRule.SHOW_DEATH_MESSAGES)) {
-            plugin.getServer().broadcastMessage(Component.text("Please use '/gamerule showDeathMessages false' to enable custom death messages", NamedTextColor.YELLOW));
+            Bukkit.broadcast(Component.text("Please use '/gamerule showDeathMessages false' to enable custom death messages", NamedTextColor.YELLOW));
         }
     }
 }
