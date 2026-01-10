@@ -1,0 +1,17 @@
+# OreStatus Plugin Configuration
+# This file stores player status data
+
+statuses: {}
+# Format: statuses:
+#   <uuid>: <status>
+# Status can be: IRON, DIAMOND, or NETHERITE
+
+# Maximum number of maces allowed on the server (0 = unlimited)
+mace-limit: 3
+
+# Spear permissions per player
+# Format: spear-permissions:
+#   <uuid>: <true|false>
+# true = all spear features enabled, false = only lunge enabled
+# If not set, defaults to false (only lunge enabled, other features disabled)
+spear-permissions: {}
