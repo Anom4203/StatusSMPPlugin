@@ -1,10 +1,15 @@
 package com.example.orestatus;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
@@ -21,7 +26,7 @@ public class RestrictionListener implements Listener {
 
     private final OreStatusPlugin plugin;
     private final Map<UUID, Long> lastMessageTime = new HashMap<>();
-    private static final long MESSAGE_COOLDOWN = 10 * 60 * 1000; 
+    private static final long MESSAGE_COOLDOWN = 1000; 
 
     public RestrictionListener(OreStatusPlugin plugin) {
         this.plugin = plugin;
@@ -66,12 +71,67 @@ public class RestrictionListener implements Listener {
     @EventHandler
     public void onUse(PlayerInteractEvent e) {
         checkItem(e.getPlayer(), e.getItem());
+        // Also check inventory in case item was in hand
+        checkInventory(e.getPlayer());
     }
 
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent e) {
         // Check inventory when player joins
         checkInventory(e.getPlayer());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onCraftItem(CraftItemEvent e) {
+        if (e.isCancelled()) return;
+        if (!(e.getWhoClicked() instanceof Player player)) return;
+        
+        // Check inventory after crafting completes to remove any illegal items
+        // Schedule for next tick to ensure item is in inventory
+        Bukkit.getScheduler().runTask(plugin, () -> checkInventory(player));
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onInventoryClick(InventoryClickEvent e) {
+        if (e.isCancelled()) return;
+        if (!(e.getWhoClicked() instanceof Player player)) return;
+        
+        // Only check if an item was actually moved (not just hovering)
+        // Check if current item or cursor item could be illegal
+        ItemStack current = e.getCurrentItem();
+        ItemStack cursor = e.getCursor();
+        
+        boolean shouldCheck = false;
+        if (current != null && (current.getType().toString().contains("SWORD") || 
+            current.getType().toString().contains("AXE") || 
+            current.getType().toString().contains("HELMET") ||
+            current.getType().toString().contains("CHESTPLATE") || 
+            current.getType().toString().contains("LEGGINGS") || 
+            current.getType().toString().contains("BOOTS"))) {
+            shouldCheck = true;
+        }
+        if (cursor != null && (cursor.getType().toString().contains("SWORD") || 
+            cursor.getType().toString().contains("AXE") || 
+            cursor.getType().toString().contains("HELMET") ||
+            cursor.getType().toString().contains("CHESTPLATE") || 
+            cursor.getType().toString().contains("LEGGINGS") || 
+            cursor.getType().toString().contains("BOOTS"))) {
+            shouldCheck = true;
+        }
+        
+        if (shouldCheck) {
+            // Schedule for next tick to ensure changes are applied
+            Bukkit.getScheduler().runTask(plugin, () -> checkInventory(player));
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onInventoryClose(InventoryCloseEvent e) {
+        if (!(e.getPlayer() instanceof Player player)) return;
+        
+        // Check inventory when closing any inventory (crafting table, etc.)
+        // Schedule for next tick to ensure any items are in player inventory
+        Bukkit.getScheduler().runTask(plugin, () -> checkInventory(player));
     }
 
     @EventHandler

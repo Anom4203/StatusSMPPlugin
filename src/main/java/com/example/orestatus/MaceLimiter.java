@@ -1,5 +1,7 @@
 package com.example.orestatus;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -49,14 +51,14 @@ public class MaceLimiter implements Listener {
     }
 
     /**
-     * Checks if heavy cores should be disabled (mace limit reached)
+     * Checks if heavy cores should be disabled (mace + heavy core limit reached)
      */
     private boolean isHeavyCoreDisabled() {
         int limit = plugin.getMaceLimit();
         if (limit <= 0) return false; // Limit disabled, heavy cores allowed
         
-        int currentCount = countMacesOnServer();
-        // Disable heavy cores when mace count is at or above limit
+        int currentCount = countMacesAndHeavyCoresOnServer();
+        // Disable heavy cores when mace + heavy core count is at or above limit
         return currentCount >= limit;
     }
 
@@ -114,85 +116,221 @@ public class MaceLimiter implements Listener {
         return count;
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    /**
+     * Counts all heavy cores currently on the server
+     * Includes heavy cores in player inventories and dropped items
+     */
+    public int countHeavyCoresOnServer() {
+        int count = 0;
+
+        // Count heavy cores in player inventories
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            PlayerInventory inv = player.getInventory();
+            
+            // Count main inventory (0-35)
+            for (int i = 0; i < 36; i++) {
+                ItemStack item = inv.getItem(i);
+                if (isHeavyCore(item)) {
+                    count += item.getAmount();
+                }
+            }
+            
+            // Count armor slots
+            ItemStack[] armor = inv.getArmorContents();
+            for (ItemStack item : armor) {
+                if (isHeavyCore(item)) {
+                    count += item.getAmount();
+                }
+            }
+            
+            // Count offhand
+            ItemStack offhand = inv.getItemInOffHand();
+            if (isHeavyCore(offhand)) {
+                count += offhand.getAmount();
+            }
+            
+            // Count main hand
+            ItemStack mainHand = inv.getItemInMainHand();
+            if (isHeavyCore(mainHand)) {
+                count += mainHand.getAmount();
+            }
+        }
+
+        // Count dropped heavy cores in the world
+        for (org.bukkit.World world : Bukkit.getWorlds()) {
+            Collection<Item> items = world.getEntitiesByClass(Item.class);
+            for (Item item : items) {
+                ItemStack itemStack = item.getItemStack();
+                if (isHeavyCore(itemStack)) {
+                    count += itemStack.getAmount();
+                }
+            }
+        }
+
+        return count;
+    }
+
+    /**
+     * Counts maces + heavy cores together on the server
+     */
+    public int countMacesAndHeavyCoresOnServer() {
+        return countMacesOnServer() + countHeavyCoresOnServer();
+    }
+
+    /**
+     * Removes one mace or heavy core from the server
+     * Prioritizes removing from dropped items first, then from player inventories
+     * @return true if an item was removed, false if none found
+     */
+    private boolean removeOneMaceOrHeavyCore() {
+        // First, try to remove from dropped items in the world
+        for (org.bukkit.World world : Bukkit.getWorlds()) {
+            Collection<Item> items = world.getEntitiesByClass(Item.class);
+            for (Item item : items) {
+                ItemStack itemStack = item.getItemStack();
+                if (isMace(itemStack) || isHeavyCore(itemStack)) {
+                    item.remove();
+                    return true; // Removed one
+                }
+            }
+        }
+
+        // If no dropped items found, remove from player inventories
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            PlayerInventory inv = player.getInventory();
+            
+            // Check main inventory (0-35)
+            for (int i = 0; i < 36; i++) {
+                ItemStack item = inv.getItem(i);
+                if (isMace(item) || isHeavyCore(item)) {
+                    if (item.getAmount() > 1) {
+                        item.setAmount(item.getAmount() - 1);
+                    } else {
+                        inv.setItem(i, null);
+                    }
+                    return true; // Removed one
+                }
+            }
+            
+            // Check offhand
+            ItemStack offhand = inv.getItemInOffHand();
+            if (isMace(offhand) || isHeavyCore(offhand)) {
+                if (offhand.getAmount() > 1) {
+                    offhand.setAmount(offhand.getAmount() - 1);
+                } else {
+                    inv.setItemInOffHand(null);
+                }
+                return true; // Removed one
+            }
+            
+            // Check main hand
+            ItemStack mainHand = inv.getItemInMainHand();
+            if (isMace(mainHand) || isHeavyCore(mainHand)) {
+                if (mainHand.getAmount() > 1) {
+                    mainHand.setAmount(mainHand.getAmount() - 1);
+                } else {
+                    inv.setItemInMainHand(null);
+                }
+                return true; // Removed one
+            }
+        }
+        
+        return false; // No items found to remove
+    }
+
+    /**
+     * Removes maces and heavy cores until the count is at or below the limit
+     * Keeps removing until there are only 'limit' items remaining
+     * @param limit The maximum number of maces + heavy cores allowed
+     */
+    private void removeMacesUntilLimit(int limit) {
+        int removed = 0;
+        int maxAttempts = 1000; // Safety limit to prevent infinite loops
+        int attempts = 0;
+        
+        while (attempts < maxAttempts) {
+            int currentCount = countMacesAndHeavyCoresOnServer();
+            
+            // If we're at or below the limit, we're done
+            if (currentCount <= limit) {
+                break;
+            }
+            
+            // Try to remove one item
+            if (removeOneMaceOrHeavyCore()) {
+                removed++;
+            } else {
+                // Couldn't remove any more items, break to avoid infinite loop
+                break;
+            }
+            
+            attempts++;
+        }
+        
+        if (removed > 0) {
+            int finalCount = countMacesAndHeavyCoresOnServer();
+            // Broadcast message to all players if many items were removed
+            if (removed > 1) {
+                Bukkit.broadcast(Component.text("Removed " + removed + " maces/heavy cores to maintain server limit of " + limit + " (now: " + finalCount + ")", NamedTextColor.YELLOW));
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onCraftItem(CraftItemEvent e) {
+        if (e.isCancelled()) return;
         if (!(e.getWhoClicked() instanceof Player player)) return;
         
         ItemStack result = e.getRecipe().getResult();
         
-        // Check for mace crafting
-        if (isMace(result)) {
+        // Check for mace or heavy core crafting
+        if (isMace(result) || isHeavyCore(result)) {
             int limit = plugin.getMaceLimit();
             if (limit <= 0) return; // Limit disabled
 
-            int currentCount = countMacesOnServer();
-            int resultAmount = result.getAmount();
-
-            if (currentCount + resultAmount > limit) {
-                e.setCancelled(true);
-                player.sendMessage(ChatColor.RED + "Cannot craft mace! Server mace limit (" + limit + ") would be exceeded.");
-                player.sendMessage(ChatColor.YELLOW + "Current maces: " + currentCount + " / " + limit);
-            }
-            return;
-        }
-        
-        // Check for heavy core crafting
-        if (isHeavyCore(result)) {
-            if (isHeavyCoreDisabled()) {
-                int limit = plugin.getMaceLimit();
-                int currentCount = countMacesOnServer();
-                e.setCancelled(true);
-                player.sendMessage(ChatColor.RED + "Cannot craft heavy core! Server mace limit (" + limit + ") has been reached.");
-                player.sendMessage(ChatColor.YELLOW + "Current maces: " + currentCount + " / " + limit);
-                player.sendMessage(ChatColor.GRAY + "Heavy cores are disabled when the mace limit is reached.");
-            }
-            return;
+            // Schedule check for next tick to ensure item is in inventory
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                int currentCount = countMacesAndHeavyCoresOnServer();
+                
+                // If maces + heavycores > limit, remove until at limit
+                if (currentCount > limit) {
+                    removeMacesUntilLimit(limit);
+                }
+            });
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onInventoryClick(InventoryClickEvent e) {
+        if (e.isCancelled()) return;
         if (!(e.getWhoClicked() instanceof Player player)) return;
         
-        // Only check crafting table and player inventory interactions
-        if (e.getInventory().getType() != InventoryType.CRAFTING && 
-            e.getInventory().getType() != InventoryType.WORKBENCH) {
+        // Check crafting table, workbench, and crafter interactions
+        InventoryType invType = e.getInventory().getType();
+        if (invType != InventoryType.CRAFTING && 
+            invType != InventoryType.WORKBENCH &&
+            invType != InventoryType.CRAFTER) {
             return;
         }
 
         ItemStack clicked = e.getCurrentItem();
         if (clicked == null) return;
         
-        // Check for mace in crafting result
-        if (isMace(clicked)) {
+        // Check for mace or heavy core in crafting result (including crafters)
+        if ((isMace(clicked) || isHeavyCore(clicked)) && 
+            e.getSlotType() == org.bukkit.event.inventory.InventoryType.SlotType.RESULT) {
             int limit = plugin.getMaceLimit();
             if (limit <= 0) return; // Limit disabled
 
-            int currentCount = countMacesOnServer();
-            
-            // If clicking a mace in crafting result slot, check if taking it would exceed limit
-            if (e.getSlotType() == org.bukkit.event.inventory.InventoryType.SlotType.RESULT) {
-                if (currentCount + clicked.getAmount() > limit) {
-                    e.setCancelled(true);
-                    player.sendMessage(ChatColor.RED + "Cannot take mace! Server mace limit (" + limit + ") would be exceeded.");
-                    player.sendMessage(ChatColor.YELLOW + "Current maces: " + currentCount + " / " + limit);
+            // Schedule check for next tick to ensure item is in inventory
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                int currentCount = countMacesAndHeavyCoresOnServer();
+                
+                // If maces + heavycores > limit, remove until at limit
+                if (currentCount > limit) {
+                    removeMacesUntilLimit(limit);
                 }
-            }
-            return;
-        }
-        
-        // Check for heavy core in crafting result
-        if (isHeavyCore(clicked)) {
-            if (e.getSlotType() == org.bukkit.event.inventory.InventoryType.SlotType.RESULT) {
-                if (isHeavyCoreDisabled()) {
-                    int limit = plugin.getMaceLimit();
-                    int currentCount = countMacesOnServer();
-                    e.setCancelled(true);
-                    player.sendMessage(ChatColor.RED + "Cannot take heavy core! Server mace limit (" + limit + ") has been reached.");
-                    player.sendMessage(ChatColor.YELLOW + "Current maces: " + currentCount + " / " + limit);
-                    player.sendMessage(ChatColor.GRAY + "Heavy cores are disabled when the mace limit is reached.");
-                }
-            }
+            });
         }
     }
 
@@ -210,14 +348,14 @@ public class MaceLimiter implements Listener {
             // Picking up a mace doesn't increase the total count - it just moves from world to inventory
             // So we should generally allow picking up. However, we still check to ensure
             // we don't exceed limit (defensive check in case of race conditions or edge cases)
-            int currentCount = countMacesOnServer();
+            int currentCount = countMacesAndHeavyCoresOnServer();
             
             // Only prevent if we would somehow exceed limit (shouldn't happen with crafting checks,
             // but provides safety in case of edge cases or commands that bypass crafting)
             if (currentCount > limit) {
                 e.setCancelled(true);
-                player.sendMessage(ChatColor.RED + "Cannot pick up mace! Server mace limit (" + limit + ") has been exceeded.");
-                player.sendMessage(ChatColor.YELLOW + "Current maces: " + currentCount + " / " + limit);
+                player.sendMessage(ChatColor.RED + "Cannot pick up mace! Server limit (" + limit + ") has been exceeded.");
+                player.sendMessage(ChatColor.YELLOW + "Current maces + heavy cores: " + currentCount + " / " + limit);
             }
             // Note: We allow pickup even if at limit because picking up doesn't increase total count
             return;
@@ -227,11 +365,11 @@ public class MaceLimiter implements Listener {
         if (isHeavyCore(item)) {
             if (isHeavyCoreDisabled()) {
                 int limit = plugin.getMaceLimit();
-                int currentCount = countMacesOnServer();
+                int currentCount = countMacesAndHeavyCoresOnServer();
                 e.setCancelled(true);
-                player.sendMessage(ChatColor.RED + "Cannot pick up heavy core! Server mace limit (" + limit + ") has been reached.");
-                player.sendMessage(ChatColor.YELLOW + "Current maces: " + currentCount + " / " + limit);
-                player.sendMessage(ChatColor.GRAY + "Heavy cores are disabled when the mace limit is reached.");
+                player.sendMessage(ChatColor.RED + "Cannot pick up heavy core! Server limit (" + limit + ") has been reached.");
+                player.sendMessage(ChatColor.YELLOW + "Current maces + heavy cores: " + currentCount + " / " + limit);
+                player.sendMessage(ChatColor.GRAY + "Heavy cores are disabled when the limit is reached.");
             }
         }
     }
@@ -243,14 +381,14 @@ public class MaceLimiter implements Listener {
         ItemStack item = e.getItem();
         if (!isHeavyCore(item)) return;
         
-        // Prevent using heavy cores when mace limit is reached
+        // Prevent using heavy cores when mace + heavy core limit is reached
         if (isHeavyCoreDisabled()) {
             e.setCancelled(true);
             int limit = plugin.getMaceLimit();
-            int currentCount = countMacesOnServer();
-            player.sendMessage(ChatColor.RED + "Cannot use heavy core! Server mace limit (" + limit + ") has been reached.");
-            player.sendMessage(ChatColor.YELLOW + "Current maces: " + currentCount + " / " + limit);
-            player.sendMessage(ChatColor.GRAY + "Heavy cores are disabled when the mace limit is reached.");
+            int currentCount = countMacesAndHeavyCoresOnServer();
+            player.sendMessage(ChatColor.RED + "Cannot use heavy core! Server limit (" + limit + ") has been reached.");
+            player.sendMessage(ChatColor.YELLOW + "Current maces + heavy cores: " + currentCount + " / " + limit);
+            player.sendMessage(ChatColor.GRAY + "Heavy cores are disabled when the limit is reached.");
         }
     }
 }
