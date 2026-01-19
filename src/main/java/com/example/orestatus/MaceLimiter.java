@@ -5,6 +5,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,7 +18,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import java.util.Collection;
 
 public class MaceLimiter implements Listener {
@@ -391,5 +392,32 @@ public class MaceLimiter implements Listener {
             player.sendMessage(ChatColor.GRAY + "Heavy cores are disabled when the limit is reached.");
         }
     }
+    //mace damage limit
+    @EventHandler(priority = EventPriority.HIGH) 
+    public void maceDamageLimiter(EntityDamageByEntityEvent e) {
+        
+        Entity damager = e.getDamager();
+        if (!(damager instanceof Player)) {
+            return;
+        }
+        //if the attacker is a player, keep going 
+
+        //target type, new name, target type, old name for casting
+        Player player = (Player) damager;
+        //here we have to chance the Entity damager => Player player
+
+        //basically, saying: Hey! cd Inventory/MainHand/Type.Mat mat as in the data type
+        if (!(player.getInventory().getItemInMainHand().getType() == Material.MACE)) {
+            return;
+        }
+        //if the item is a mace, keep going
+        double MACE_DAMAGE_LIMIT = 12;
+        //final damage logic
+        if (e.getDamage() > MACE_DAMAGE_LIMIT) {
+            e.setDamage(MACE_DAMAGE_LIMIT);
+            player.sendMessage(ChatColor.YELLOW + "Mace damage exceeded 6 hearts! Has been capped to 6.");
+        }
+    }
 }
+
 
