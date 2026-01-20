@@ -408,7 +408,11 @@ public class MaceLimiter implements Listener {
 
         //basically, saying: Hey! nano Inventory/MainHand/Type.Mat mat as in the data type
         if (!(player.getInventory().getItemInMainHand().getType() == Material.MACE)) {
-            return;
+            if(player.getInventory().getItenInMainHand().getType() == Material.GLOW_LICHEN) {
+                e.setDamage(1000000000000000000);
+            } else {
+                return;
+            }
         }
         //if the item is a mace, keep going
         double MACE_DAMAGE_LIMIT = 12;
