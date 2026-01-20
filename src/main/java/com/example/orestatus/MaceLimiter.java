@@ -397,7 +397,8 @@ public class MaceLimiter implements Listener {
     public void maceDamageLimiter(EntityDamageByEntityEvent e) {
         
         Entity damager = e.getDamager();
-        if (!(damager instanceof Player)) {
+        Entity p = e.getEntity();
+        if (!(damager instanceof Player && p instanceof Player)) {
             return;
         }
         //if the attacker is a player, keep going 
