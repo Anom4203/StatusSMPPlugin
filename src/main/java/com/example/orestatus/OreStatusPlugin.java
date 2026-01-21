@@ -128,4 +128,12 @@ public class OreStatusPlugin extends JavaPlugin {
         getConfig().set("mace-limit", limit);
         saveConfig();
     }
+
+    public double getMaceLimit() {
+        return getConfig().getInt("mace-damage-limit", 0);
+    }
+    public void setMaceDamageCap(double limit) {
+        getConfig().set("mace-damage-limit", limit);
+        saveConfig();
+    }
 }

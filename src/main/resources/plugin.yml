@@ -13,6 +13,11 @@ commands:
     usage: /showStatus [player]
     permission: orestatus.show
   
+  setmacedmglimit:
+    description: Set mace count
+    usage: /setmacedmglimit <limit>
+    permission: op
+
   setMaces:
     description: Set the maximum number of maces allowed on the server
     usage: /setMaces <amount>
