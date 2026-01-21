@@ -1,6 +1,6 @@
 name: status
 main: com.example.orestatus.OreStatusPlugin
-version: 2.2
+version: 2.3.6
 api-version: 1.21
 commands:
   setStatus:

@@ -7,7 +7,7 @@
 
     <groupId>com.example</groupId>
     <artifactId>orestatus</artifactId>
-    <version>status2.2</version>
+    <version>status2.3.6</version>
     <packaging>jar</packaging>
 
     <properties>
