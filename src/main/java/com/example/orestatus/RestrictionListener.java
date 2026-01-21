@@ -14,7 +14,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-
+import org.bukkit.event.inventory.InventoryClickEvent;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -72,6 +72,12 @@ public class RestrictionListener implements Listener {
     public void onUse(PlayerInteractEvent e) {
         checkItem(e.getPlayer(), e.getItem());
         // Also check inventory in case item was in hand
+        checkInventory(e.getPlayer());
+    }
+
+    @EventHandler
+    public void onPLayerUseInventory(InventoryClickEvent e) {
+        checkItem(e.getWhoClicked().getPlayer(), e.getItem());
         checkInventory(e.getPlayer());
     }
 
