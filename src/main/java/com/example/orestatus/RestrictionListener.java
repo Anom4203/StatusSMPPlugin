@@ -77,8 +77,9 @@ public class RestrictionListener implements Listener {
 
     @EventHandler
     public void onPLayerUseInventory(InventoryClickEvent e) {
-        checkItem(e.getWhoClicked().getPlayer(), e.getItem());
-        checkInventory(e.getPlayer());
+        Player player = (Player) e.getWhoClicked();
+        checkItem(player, e.getCurrentItem());
+        checkInventory(player);
     }
 
     @EventHandler
