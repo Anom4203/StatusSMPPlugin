@@ -74,7 +74,7 @@ public class RestrictionListener implements Listener {
         // Also check inventory in case item was in hand
         checkInventory(e.getPlayer());
     }
-
+    
     @EventHandler
     public void onPLayerUseInventory(InventoryClickEvent e) {
         Player player = (Player) e.getWhoClicked();
