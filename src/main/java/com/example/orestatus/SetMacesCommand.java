@@ -13,37 +13,6 @@ public class SetMacesCommand implements CommandExecutor {
         this.plugin = plugin;
     }
 
-    public maceDmgLimCommand(OreStatusPlugin plugin) {
-        this.plugin = plugin;
-    }
-
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (~sender.isOp()) {
-            sender.sendMessage(ChatColor.RED + "No exploiting!");
-            return true;
-        }
-
-        if (args.length != 1) {
-            sender.sendMessage(ChatColor.RED + "bro, ITS ONE ARGUMENT");
-        }
-
-        try {
-            int limit = Double.parseInt(args[0]);
-            if (limit < 0) {
-                sender.sendMessage(ChatColor.RED + "The limit can't be negative");
-                return true;
-            }
-
-            plugin.setMaceLimit(limit);
-            sender.sendMessage(ChatColor.MAGIC + "Maces set to " + limit);
-
-            return true;
-        } catch (NumberFormatException, e) {
-            sender.sendMessage(ChatColor.RED + "Dude, the limit has to be a double");
-            return true;
-        }
-    }
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!sender.isOp()) {

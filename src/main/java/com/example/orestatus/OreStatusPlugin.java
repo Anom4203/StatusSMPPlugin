@@ -49,6 +49,7 @@ public class OreStatusPlugin extends JavaPlugin {
             // Register setMaces command
             if (getCommand("setMaces") != null) {
                 getCommand("setMaces").setExecutor(new SetMacesCommand(this));
+                getCommand("SetMaceDmgLimit").setExecutor(new SetMaceDmgLimitCommand(this));
                 getCommand("setMaces").setTabCompleter(new StatusTab());
             } else {
                 getLogger().warning("setMaces command not found in plugin.yml!");
@@ -129,7 +130,7 @@ public class OreStatusPlugin extends JavaPlugin {
         saveConfig();
     }
 
-    public double getMaceLimit() {
+    public double getMacedmgLimit() {
         return getConfig().getInt("mace-damage-limit", 0);
     }
     public void setMaceDamageCap(double limit) {

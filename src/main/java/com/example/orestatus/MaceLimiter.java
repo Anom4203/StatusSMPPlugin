@@ -392,36 +392,4 @@ public class MaceLimiter implements Listener {
             player.sendMessage(ChatColor.GRAY + "Heavy cores are disabled when the limit is reached.");
         }
     }
-    //mace damage limit
-    @EventHandler(priority = EventPriority.HIGH) 
-    public void maceDamageLimiter(EntityDamageByEntityEvent e) {
-        
-        Entity damager = e.getDamager();
-        if (!(damager instanceof Player && e.getEntity(); instanceof Player)) {
-            return;
-        }
-        //if the attacker is a player, keep going 
-
-        //target type, new name, target type, old name for casting
-        Player player = (Player) damager;
-        //here we have to chance the Entity damager => Player player
-
-        //basically, saying: Hey! nano Inventory/MainHand/Type.Mat mat as in the data type
-        if (!(player.getInventory().getItemInMainHand().getType() == Material.MACE)) {
-            if(player.getInventory().getItemInMainHand().getType() == Material.GLOW_LICHEN) {
-                e.setDamage(DOUBLE.MAX_VALUE);
-            } else {
-                return;
-            }
-        }
-        //if the item is a mace, keep going
-        double MACE_DAMAGE_LIMIT = 12;
-        //final damage logic
-        if (e.getDamage() > MACE_DAMAGE_LIMIT) {
-            e.setDamage(MACE_DAMAGE_LIMIT);
-            player.sendMessage(ChatColor.YELLOW + "Mace damage exceeded 6 hearts! Has been capped to 6.");
-        }
-    }
 }
-
-
