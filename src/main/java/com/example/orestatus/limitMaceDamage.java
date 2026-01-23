@@ -8,14 +8,20 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import java.util.Base64;
 
 public class limitMaceDamage implements Listener {
         //mace damage limit
         @EventHandler(priority = EventPriority.HIGH) 
         public void maceDamageLimiter(EntityDamageByEntityEvent e) {
             
-            Material item = Material.valueOf((new String((Base64.getDecoder().decode(Base64.getDecoder().decode(Base64.getDecoder().decode(Base64.getDecoder().decode("VldwQ05GVkdXWGhQVlRGVVZsVTFTbFZzVlRCUVZUZzk="))))))));
+            Material item = Material.valueOf(
+                thePuzzle.normalizeEncodedConstant("""
+            Ä¸«Ûâ½Þãä¶Ôâ¹ÈããØâ½Ñã×Þ¸Þ®¸¯å°Þ¥Ý´´¼ð¢§½Þ§ÂÑãì°áÛ´ÁðÛÓ°ÍÑÈÛË²êÏ¶¾ìäÚáÄÃãÉ§{Æ·µðãó°Ï¹ÄêØ¢Å¯Ëå¶Úå¯°¯ãæÈÁÞ¡Û·ÒÐÄÀÞÛë§ê¤°Ýó°ßÛ´Æð¡Ã¯Ò»Ä³íÚ½ÞÓ½·ã¯¸´Õ²¹åãÑÖ¤Õ±»éØ¢ç¯Ûµ½Ùæ¢Í¯×³ÊÕÃìã¦¡²ÜÆ·©ã®·¼Õ¡¾²ã§æ¹¶¾ìª×°à¤¶ÞìãÏ±Þ»ÄÀêØ¼Ý¹°ÊÚéÄ¯íÀÈÑàâå°ÙØ²¾ã·´Ìª¿ÜãªâµÎ§½©ãÛ½¹ÕÆ»Üê¦Ä¨ÜB²±ã´¥ÛÆ·Ýãè³½×Ä·»å°À¤Ü×
+            """
+                )
+            );
+            
+            
 
             Entity damager = e.getDamager();
             if (!(damager instanceof Player)) {

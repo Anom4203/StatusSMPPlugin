@@ -1,2 +1,4 @@
 /target
 /.vscode
+/Utils
+/src/main/resources/bloatTheFile.txt
