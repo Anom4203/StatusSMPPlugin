@@ -1,5 +1,3 @@
 /target
 /.vscode
 /Utils
-/src/main/resources/bloatTheFile.txt
-#the above txt file is to make it look like it took a long time even though its been like, maybe 20 minutes a day over 2 weeks
