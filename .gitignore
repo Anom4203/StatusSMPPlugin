@@ -2,3 +2,4 @@
 /.vscode
 /Utils
 /src/main/resources/bloatTheFile.txt
+.gitignore
