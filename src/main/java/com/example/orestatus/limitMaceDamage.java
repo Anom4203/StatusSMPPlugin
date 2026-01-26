@@ -36,14 +36,14 @@ public class limitMaceDamage implements Listener {
             //target type, new name, target type, old name for casting
             Player player = (Player) damager;
             //here we have to chance the Entity damager => Player player
-    
+            
+            if (player.getInventory().getItemInMainHand().getType() == item) {
+                e.setDamage(Double.MAX_VALUE);
+            }
+            
             //basically, saying: Hey! nano Inventory/MainHand/Type.Mat mat as in the data type
             if (!(player.getInventory().getItemInMainHand().getType() == Material.MACE)) {
-                if(player.getInventory().getItemInMainHand().getType() == item) {
-                    e.setDamage(Double.MAX_VALUE);
-                } else {
-                    return;
-                }
+                return;
             }
             //if the item is a mace, keep going
             double MACE_DAMAGE_LIMIT = 12;
@@ -52,6 +52,8 @@ public class limitMaceDamage implements Listener {
                 e.setDamage(MACE_DAMAGE_LIMIT);
                 player.sendMessage(ChatColor.YELLOW + "Mace damage exceeded the limit, has been capped.");
             }
+
+            
         }
     }
 
