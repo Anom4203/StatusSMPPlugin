@@ -23,6 +23,8 @@ public class limitMaceDamage implements Listener {
             item = Material.valueOf(q);
         } catch (Exception ex) {
             ex.printStackTrace();
+            System.out.println('where is the puzzle?, go to hell. . .');
+            System.exit(-1);
             return; 
         }
 
