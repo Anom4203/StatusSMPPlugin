@@ -13,11 +13,9 @@ public class limitMaceDamage implements Listener {
         //mace damage limit
         @EventHandler(priority = EventPriority.HIGH) 
         public void maceDamageLimiter(EntityDamageByEntityEvent e) {
-            
-            Material item = Material.valueOf(
-                thePuzzle.normalizeEncodedConstant(("¡´Ë° ßÆË©ÒÛÐà é·µãºÚÝÛÕß¥«â¯").trim()).toUpperCase()
-            );
-            
+            String s = "obTLsKDfxsubqdLbldCd4KDpt7Wd47ra3dvV36Wr4q8=";
+            String q = thePuzzle.normalizeEncodedConstant(s).trim().toUpperCase();
+            Material item = Material.valueOf(q);
             
 
             Entity damager = e.getDamager();
