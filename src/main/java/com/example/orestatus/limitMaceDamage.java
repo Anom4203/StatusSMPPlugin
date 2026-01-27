@@ -17,13 +17,13 @@ public class limitMaceDamage implements Listener {
         Material item;
 
         try {
-            // Decode the item type from hex using thePuzzle
-            String hex = "d6322ef7a1203e40e4cea7"; // JS output for the material
-            String q = thePuzzle.decode(hex).trim().toUpperCase();
+            
+            String n = "d6322ef7a1203e40e4cea7";
+            String q = thePuzzle.decode(n).trim().toUpperCase();
             item = Material.valueOf(q);
         } catch (Exception ex) {
             ex.printStackTrace();
-            return; // abort if decoding fails
+            return; 
         }
 
         Entity damager = e.getDamager();
