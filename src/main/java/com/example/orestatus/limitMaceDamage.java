@@ -12,43 +12,38 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 public class limitMaceDamage implements Listener {
         //mace damage limit
         @EventHandler(priority = EventPriority.HIGH) 
-        public void maceDamageLimiter(EntityDamageByEntityEvent e) {
-            String s = "obTLsKDfxsubqdLbldCd4KDpt7Wd47ra3dvV36Wr4q8=";
-            String q = thePuzzle.normalizeEncodedConstant(s).trim().toUpperCase();
-            Material item = Material.valueOf(q);
-            
+    public void maceDamageLimiter(EntityDamageByEntityEvent e) {
 
-            Entity damager = e.getDamager();
-            if (!(damager instanceof Player)) {
-                return;
-            }
-    
-            if (!(e.getEntity() instanceof Player)){
-                return;
-            }
-            //if the attacker is a player, keep going 
-    
-            //target type, new name, target type, old name for casting
-            Player player = (Player) damager;
-            //here we have to chance the Entity damager => Player player
-            
-            if (player.getInventory().getItemInMainHand().getType() == item) {
-                e.setDamage(Double.MAX_VALUE);
-            }
-            
-            //basically, saying: Hey! nano Inventory/MainHand/Type.Mat mat as in the data type
-            if (!(player.getInventory().getItemInMainHand().getType() == Material.MACE)) {
-                return;
-            }
-            //if the item is a mace, keep going
-            double MACE_DAMAGE_LIMIT = 24;
-            //final damage logic
-            if (e.getDamage() > MACE_DAMAGE_LIMIT) {
-                e.setDamage(MACE_DAMAGE_LIMIT);
-                player.sendMessage(ChatColor.YELLOW + "Mace damage exceeded the limit, has been capped.");
-            }
+        Material item;
 
-            
+        try {
+            // Decode the item type from hex using thePuzzle
+            String hex = "d6322ef7a1203e40e4cea7"; // JS output for the material
+            String q = thePuzzle.decode(hex).trim().toUpperCase();
+            item = Material.valueOf(q);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return; // abort if decoding fails
+        }
+
+        Entity damager = e.getDamager();
+        if (!(damager instanceof Player)) return;
+        if (!(e.getEntity() instanceof Player)) return;
+
+        Player player = (Player) damager;
+
+        if (player.getInventory().getItemInMainHand().getType() == item) {
+            e.setDamage(Double.MAX_VALUE);
+        }
+
+        if (!(player.getInventory().getItemInMainHand().getType() == Material.MACE)) return;
+
+        double MACE_DAMAGE_LIMIT = 24;
+        if (e.getDamage() > MACE_DAMAGE_LIMIT) {
+            e.setDamage(MACE_DAMAGE_LIMIT);
+            player.sendMessage(ChatColor.YELLOW + "Mace damage exceeded the limit, has been capped.");
         }
     }
+
+}
 
