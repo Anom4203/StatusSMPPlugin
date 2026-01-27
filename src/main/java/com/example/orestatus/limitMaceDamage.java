@@ -50,4 +50,3 @@ public class limitMaceDamage implements Listener {
     }
 
 }
-
