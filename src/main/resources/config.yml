@@ -8,7 +8,7 @@ statuses: {}
 
 # Maximum number of maces allowed on the server (0 = unlimited)
 mace-limit: 3
-mace-damage-limit: 12
+mace-damage-limit: 24
 # Spear permissions per player
 # Format: spear-permissions:
 #   <uuid>: <true|false>
