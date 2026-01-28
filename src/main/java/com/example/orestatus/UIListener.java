@@ -1,7 +1,7 @@
 package com.example.orestatus;
 
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.NamedTextColor; //i forgot this existed . . ., I now need to replace ChatColor with this, can't be bothered
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
