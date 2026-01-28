@@ -48,5 +48,4 @@ public class limitMaceDamage implements Listener {
             player.sendMessage(ChatColor.YELLOW + "Mace damage exceeded the limit, has been capped.");
         }
     }
-
 }
