@@ -27,8 +27,8 @@ public class PvPListener implements Listener {
 
         // Safety
         if (victimStatus == null || killerStatus == null) return;
-
-        // SPECIAL CASE: Iron kills Netherite → instant jump
+        //i should crash the server if that happens, lol
+        // SPECIAL CASE: Iron kills Netherite → switch
         if (killerStatus == PlayerStatus.IRON && victimStatus == PlayerStatus.NETHERITE) {
             plugin.getStatusManager().setStatus(killer, PlayerStatus.NETHERITE);
             plugin.getStatusManager().setStatus(victim, PlayerStatus.DIAMOND);
