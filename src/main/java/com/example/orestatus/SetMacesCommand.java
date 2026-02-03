@@ -38,7 +38,7 @@ public class SetMacesCommand implements CommandExecutor {
             // Show current count vs limit
             MaceLimiter limiter = plugin.getMaceLimiter();
             if (limiter != null) {
-                int currentCount = limiter.countMacesOnServer();
+                int currentCount = limiter.countMacesAndHeavyCoresOnServer();
                 sender.sendMessage(ChatColor.YELLOW + "Current maces on server: " + currentCount + " / " + amount);
             }
             
